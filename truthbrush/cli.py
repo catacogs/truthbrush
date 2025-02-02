@@ -72,8 +72,8 @@ def user(handle: str):
 @click.argument("query")
 @click.option(
     "--searchtype",
-    help="Type of search query (accounts, statuses, groups, or hashtags)",
-    type=click.Choice(["accounts", "statuses", "hashtags", "groups"]),
+    help="Type of search query (accounts, status, statuses, groups, or hashtags)",
+    type=click.Choice(["accounts", "status", "statuses", "hashtags", "groups"]),
 )
 @click.option(
     "--limit", default=40, help="Limit the number of items returned", type=int
@@ -130,6 +130,16 @@ def ads():
 
 #     for followed in api.user_following(handle, maximum=maximum, resume=resume):
 #         print(json.dumps(followed))
+
+@cli.command()
+@click.argument("id")
+def status(
+        id: int
+):
+    """Pull a single status"""
+
+    r = api.pull_status(id)
+    print(json.dumps(r) if r is not None else "")
 
 
 @cli.command()

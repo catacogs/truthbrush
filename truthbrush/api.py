@@ -352,6 +352,45 @@ class Api:
                 if maximum is not None and n_output >= maximum:
                     return
 
+    def pull_status(
+            self,
+            status_id: int,
+            verbose=False,
+    ) -> dict:
+        """Pull a single status
+
+        Returns a single post or None if error or not found
+        """
+        self.__check_login()
+
+        try:
+            url = f"/v1/statuses/{status_id}"
+            if verbose:
+                logger.debug(f"Pulling status via {url}")
+            result = self._get(url)
+        except json.JSONDecodeError as e:
+            logger.error(f"Unable to pull status {status_id}: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Misc. error while pulling status {status_id}: {e}")
+            return None
+
+        if not isinstance(result, dict):
+            logger.error(f"Result is not a dict (it's a {type(result)}): {result}")
+            return None
+
+        if "error" in result:
+            logger.error(f"API returned an error while pulling status {status_id}: {result}")
+            return None
+
+        if "id" not in result:
+            logger.error(f"API result is not a post: {result}")
+            return None
+
+        result["_pulled"] = datetime.now().isoformat()
+
+        return result
+
     def pull_statuses(
         self,
         username: str,
